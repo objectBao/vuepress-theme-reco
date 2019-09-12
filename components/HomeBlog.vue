@@ -1,6 +1,6 @@
 <template>
   <div class="home-blog" :class="recoShow?'reco-show': 'reco-hide'">
-     <div class="hero" :style="{background: `url(${$frontmatter.bgImage ? $withBase($frontmatter.bgImage) : require('../images/home-bg.jpg')}) center/cover no-repeat`, ...bgImageStyle}">
+     <div class="hero" :style="{background: `url(${$frontmatter.bgImage ? $frontmatter.bgImage : require('../images/home-bg.jpg')}) center/cover no-repeat`, ...bgImageStyle}">
       <h1>{{ data.heroText || $title || '午后南杂' }}</h1>
 
       <p class="description">{{ data.tagline || $description || 'Welcome to your vuePress-theme-reco site' }}</p>
@@ -9,13 +9,13 @@
 
     <div class="home-blog-wrapper">
       <!-- 博客列表 -->
-      <note-abstract 
+      <note-abstract
         class="blog-list"
         :data="posts"
         :isHome="true"
         :currentPage="1"></note-abstract>
       <div class="info-wrapper">
-         <img class="personal-img" :src="$frontmatter.faceImage ? $withBase($frontmatter.faceImage) : require('../images/home-head.png')" alt="hero"> 
+         <img class="personal-img" :src="$frontmatter.faceImage ? $frontmatter.faceImage : require('../images/home-head.png')" alt="hero">
          <h3 class="name" v-if="$themeConfig.author || $site.title">{{ $themeConfig.author || $site.title }}</h3>
          <div class="num">
            <div>
@@ -40,13 +40,13 @@
         <hr>
         <h4><i class="iconfont reco-tag"></i> 标签</h4>
         <div class="tags">
-          <span 
-            v-for="(item, index) in tags" 
+          <span
+            v-for="(item, index) in tags"
             :key="index"
             :style="{ 'backgroundColor': item.color }"
             @click="getPagesByTags(item.name)">{{item.name}}</span>
         </div>
-      </div>  
+      </div>
     </div>
 
     <Content class="home-center" custom/>
@@ -81,6 +81,10 @@ import NavLink from "@theme/components/NavLink/";
 import AccessNumber from '@theme/components/Valine/AccessNumber'
 import NoteAbstract from '@theme/components/NoteAbstract.vue'
 import mixin from '@theme/mixins/index.js'
+import '../util/ribbon'
+
+
+
 
 export default {
   mixins: [mixin],
@@ -144,6 +148,12 @@ export default {
     }
   },
   created () {
+    console.log(this.$frontmatter)
+    console.log(this.$withBase)
+    if(this.$frontmatter.ribbons==='animate'){
+      new Ribbons();
+    }
+
     if (this.$tags.list.length > 0) {
       let tags = this.$tags.list
       tags.map(item => {
@@ -218,7 +228,7 @@ export default {
     .info-wrapper {
       transition all .3s
       margin-left 15px;
-      width 380px;  
+      width 380px;
       height auto;
       box-shadow 0 2px 10px rgba(0,0,0,0.2);
       box-sizing border-box
@@ -262,7 +272,7 @@ export default {
         .category-item {
           padding: .4rem .8rem;
           border: 1px solid #999;
-          transition: all .5s 
+          transition: all .5s
           &:first-child {
             border-top-right-radius: .25rem;
             border-top-left-radius: .25rem;
@@ -302,15 +312,15 @@ export default {
           color: #fff;
           font-size: 13px;
           box-shadow 0 1px 4px 0 rgba(0,0,0,0.2)
-          transition: all .5s  
+          transition: all .5s
           &:hover {
             transform scale(1.04)
-          }  
+          }
           &.active {
             transform scale(1.2)
-          }  
-        }  
-      }         
+          }
+        }
+      }
     }
   }
 
@@ -323,7 +333,7 @@ export default {
       margin-left 1rem
       > i {
         margin-right .5rem
-      } 
+      }
     }
   }
 }
