@@ -39,6 +39,7 @@ import SearchBox from '@SearchBox'
 import SidebarButton from '@theme/components/SidebarButton.vue'
 import NavLinks from '@theme/components/NavLinks.vue'
 import Theme from '@theme/components/Theme'
+import '../util/ribbon'
 
 export default {
   components: { SidebarButton, NavLinks, SearchBox, AlgoliaSearchBox, Theme },
@@ -51,6 +52,15 @@ export default {
   },
 
   mounted () {
+    try {
+      if (this.$root.$themeConfig.ribbons === 'animate') {
+        // eslint-disable-next-line no-undef
+        new Ribbons()
+      }
+    } catch (e) {
+      // error
+    }
+
     const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
     const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
     const { themePicker } = this.$themeConfig
