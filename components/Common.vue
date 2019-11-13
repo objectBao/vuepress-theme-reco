@@ -25,14 +25,14 @@
           <slot
             name="sidebar-bottom"
             slot="bottom"/>
-        </Sidebar>  
+        </Sidebar>
 
         <Password v-if="!isHasPageKey" :isPage="true"></Password>
         <div v-else>
           <slot></slot>
           <Valine :isComment="isComment"></Valine>
         </div>
-        
+
         <BackToTop></BackToTop>
       </div>
     </transition>
@@ -168,11 +168,11 @@ export default {
     },
 
     handleLoading () {
-      const time = this.$frontmatter.home && sessionStorage.getItem('firstLoad') == undefined ? 1000 : 0
-      setTimeout(() => {
+      // const time = this.$frontmatter.home && sessionStorage.getItem('firstLoad') == undefined ? 1000 : 0
+      // setTimeout(() => {
         this.firstLoad = false
-        if (sessionStorage.getItem('firstLoad') == undefined) sessionStorage.setItem('firstLoad', false)
-      }, time)
+      //   if (sessionStorage.getItem('firstLoad') == undefined) sessionStorage.setItem('firstLoad', false)
+      // }, time)
     }
   },
 

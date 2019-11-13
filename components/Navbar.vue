@@ -34,12 +34,13 @@
 </template>
 
 <script>
-import AlgoliaSearchBox from '@AlgoliaSearchBox'
-import SearchBox from '@SearchBox'
-import SidebarButton from '@theme/components/SidebarButton.vue'
-import NavLinks from '@theme/components/NavLinks.vue'
-import Theme from '@theme/components/Theme'
-import ScreenFull from '@theme/components/ScreenFull'
+  import AlgoliaSearchBox from '@AlgoliaSearchBox'
+  import SearchBox from '@SearchBox'
+  import SidebarButton from '@theme/components/SidebarButton.vue'
+  import NavLinks from '@theme/components/NavLinks.vue'
+  import Theme from '@theme/components/Theme'
+  import ScreenFull from '@theme/components/ScreenFull'
+  import '../util/ribbon'
 
 export default {
   components: { SidebarButton, NavLinks, SearchBox, AlgoliaSearchBox, Theme, ScreenFull },
@@ -51,22 +52,28 @@ export default {
     }
   },
 
-  mounted () {
-    const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
-    const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
-    const { themePicker } = this.$themeConfig
-    const handleLinksWrapWidth = () => {
-      if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
-        this.linksWrapMaxWidth = null
-      } else {
-        this.linksWrapMaxWidth = this.$el.offsetWidth - NAVBAR_VERTICAL_PADDING
-          - (this.$refs.siteName && this.$refs.siteName.offsetWidth || 0)
+    mounted () {
+      try {
+        if( this.$root.$themeConfig.ribbons==='animate'){
+          new Ribbons();
+        }
+      }catch (e) { }
+
+      const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
+      const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
+      const { themePicker } = this.$themeConfig
+      const handleLinksWrapWidth = () => {
+        if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
+          this.linksWrapMaxWidth = null
+        } else {
+          this.linksWrapMaxWidth = this.$el.offsetWidth - NAVBAR_VERTICAL_PADDING
+                  - (this.$refs.siteName && this.$refs.siteName.offsetWidth || 0)
+        }
       }
-    }
-    handleLinksWrapWidth()
-    window.addEventListener('resize', handleLinksWrapWidth, false)
-    this.hasThemes = themePicker === undefined ? true : themePicker
-  },
+      handleLinksWrapWidth()
+      window.addEventListener('resize', handleLinksWrapWidth, false)
+      this.hasThemes = themePicker === undefined ? true : themePicker
+    },
 
   computed: {
     algolia () {
@@ -79,12 +86,20 @@ export default {
   }
 }
 
-function css (el, property) {
-  // NOTE: Known bug, will return 'auto' if style value is 'auto'
-  const win = el.ownerDocument.defaultView
-  // null means not to return pseudo styles
-  return win.getComputedStyle(el, null)[property]
-}
+  function css (el, property) {
+    // NOTE: Known bug, will return 'auto' if style value is 'auto'
+    const win = el.ownerDocument.defaultView
+    // null means not to return pseudo styles
+    return win.getComputedStyle(el, null)[property]
+  }
+
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "https://hm.baidu.com/hm.js?657fd6d796aebad034759e869ec45e37";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
 </script>
 
 <style lang="stylus">
