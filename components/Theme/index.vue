@@ -12,35 +12,36 @@
 </template>
 
 <script>
-import ClickOutside from 'vue-click-outside';
-import ThemeOptions from './ThemeOptions.vue';
+import ClickOutside from 'vue-click-outside'
+import ThemeOptions from './ThemeOptions.vue'
 
 export default {
-	name: 'UserSettings',
+  name: 'UserSettings',
 
-	directives: {
-		'click-outside': ClickOutside,
-	},
+  directives: {
+    'click-outside': ClickOutside
+  },
 
-	components: {
-		ThemeOptions
-	},
+  components: {
+    ThemeOptions
+  },
 
-	data() {
-		return {
-			showMenu: false,
-		};
-	},
+  data () {
+    return {
+      showMenu: false
+    }
+  },
 
-	methods: {
-		hideMenu() {
-			this.showMenu = false;
-		},
-	},
-};
+  methods: {
+    hideMenu () {
+      this.showMenu = false
+    }
+  }
+}
 </script>
 
 <style lang="stylus">
+@require '../../styles/recoConfig.styl'
 
 .color-picker {
 	position: relative;
@@ -64,7 +65,7 @@ export default {
 		margin: 0;
 		padding: 1em;
 		border: 1px solid $borderColor;
-		border-radius: 4px;
+		border-radius: $borderRadius
 		transform: translateX(-50%);
 		z-index: 150;
 

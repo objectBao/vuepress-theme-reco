@@ -1,25 +1,31 @@
 <template>
 <div>
-  <ul class="timeline-wrapper">
-    <li class="desc">Yesterday Once More!</li>
-    <li v-for="(item, index) in formatPagesArr" :key="index">
-      <h3 class="year">{{item.year}}</h3>
-      <ul class="year-wrapper">
-        <li v-for="(subItem, subIndex) in item.data" :key="subIndex">
-          <span class="date">{{dateFormat(subItem.frontmatter.date)}}</span>
-          <span class="title" @click="go(subItem.path)">{{subItem.title}}</span>
-        </li>
-      </ul>
-    </li>
-  </ul>
+  <Common :sidebar="false" :isComment="false">
+    <ul class="timeline-wrapper">
+      <li class="desc">Yesterday Once More!</li>
+      <li v-for="(item, index) in formatPagesArr" :key="index">
+        <h3 class="year">{{item.year}}</h3>
+        <ul class="year-wrapper">
+          <li v-for="(subItem, subIndex) in item.data" :key="subIndex">
+            <span class="date">{{dateFormat(subItem.frontmatter.date)}}</span>
+            <span class="title" @click="go(subItem.path)">{{subItem.title}}</span>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </Common>
 </div>
 
 </template>
 
 <script>
+import Common from '@theme/components/Common.vue'
+import mixin from '@theme/mixins/index.js'
 
 export default {
+  mixins: [mixin],
   name: 'TimeLine',
+  components: { Common },
   data () {
     return {
       pages: [],
@@ -48,34 +54,30 @@ export default {
     // 根据分类获取页面数据
     getPages (tag) {
       let pages = this.$site.pages
-      pages = pages.filter(item => {
-        const { home, isTimeLine, date } = item.frontmatter
-        return !(home == true || isTimeLine == true || date === undefined)
-      })
+      pages = this._filterPostData(pages, true)
       // reverse()是为了按时间最近排序排序
       this.pages = pages.length == 0 ? [] : pages
       for (let i = 0, length = pages.length; i < length; i++) {
         const page = pages[i]
-        const pageDateYear =  this.dateFormat(page.frontmatter.date, 'year')
+        const pageDateYear = this.dateFormat(page.frontmatter.date, 'year')
         if (this.formatPages[pageDateYear]) this.formatPages[pageDateYear].push(page)
         else {
           this.formatPages[pageDateYear] = [page]
         }
       }
 
-      
-      for(let key in this.formatPages) {
+      for (const key in this.formatPages) {
+        const data = this.formatPages[key]
+        this._sortPostData(data)
         this.formatPagesArr.unshift({
           year: key,
-          data: this.formatPages[key].sort((a, b) => {
-            return this._getTimeNum(b) - this._getTimeNum(a)
-          })
+          data
         })
       }
     },
-    renderTime(date) {
-      var dateee = new Date(date).toJSON();
-      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '').replace(/-/g,'/')
+    renderTime (date) {
+      var dateee = new Date(date).toJSON()
+      return new Date(+new Date(dateee) + 8 * 3600 * 1000).toISOString().replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '').replace(/-/g, '/')
     },
     // 时间格式化
     dateFormat (date, type) {
@@ -84,13 +86,12 @@ export default {
       const year = dateObj.getFullYear()
       const mon = dateObj.getMonth() + 1
       const day = dateObj.getDate()
-      console.log(dateObj)
       if (type == 'year') return year
       else return `${mon}-${day}`
     },
     // 跳转
     go (url) {
-      this.$router.push({path: url})
+      this.$router.push({ path: url })
     },
     // 获取时间的数字类型
     _getTimeNum (date) {
@@ -106,7 +107,7 @@ export default {
 .timeline-wrapper
   box-sizing border-box
   max-width: 740px;
-  margin: 0 auto;
+  margin: 8rem auto 4rem;
   position relative
   list-style none
   &::after {
@@ -135,7 +136,7 @@ export default {
       height: 8px;
       background: #ddd;
       border-radius: 50%;
-    }  
+    }
   }
   .year {
     margin: 80px 0 0px;
@@ -157,7 +158,7 @@ export default {
           &::before {
             background $accentColor
           }
-        }  
+        }
         .title {
           color $accentColor
         }
@@ -179,7 +180,7 @@ export default {
           border-radius: 50%;
           border: 1px solid #fff;
           z-index 2
-        }  
+        }
       }
       .title {
         line-height 30px

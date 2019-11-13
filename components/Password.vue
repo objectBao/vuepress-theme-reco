@@ -1,6 +1,6 @@
 <template>
   <div class="password-shadow" :class="{'is-home': !isPage}">
-    <Background></Background>
+    <Background />
     <h3 class="title">{{isPage ? $frontmatter.title : $site.title}}</h3>
     <p class="description" v-if="!isPage">{{$site.description}}</p>
     <label class="inputBox" id="box">
@@ -35,7 +35,7 @@
 import Background from '@theme/components/Background'
 
 export default {
-  components: {Background},
+  components: { Background },
   props: {
     isPage: {
       type: Boolean,
@@ -43,7 +43,7 @@ export default {
     }
   },
   name: 'Password',
-  data() {
+  data () {
     return {
       warningText: 'Konck! Knock!',
       key: ''
@@ -56,22 +56,36 @@ export default {
   },
   methods: {
     inter () {
-      const keyVal = this.key.trim()
-      const key = this.isPage ? 'pageKey' : 'key'
-      sessionStorage.setItem(key, keyVal)
-      const isHasKey = this.isPage ? this.isHasPageKey() : this.isHasKey()
-      if (!isHasKey) {
+      const {
+        key,
+        isPage,
+        isHasPageKey,
+        isHasKey,
+        $refs: { passwordBtn }
+      } = this
+      const keyVal = key.trim()
+      const pageKey = `pageKey${window.location.pathname}`
+      const keyName = isPage ? pageKey : 'key'
+      sessionStorage.setItem(keyName, keyVal)
+      const isKeyTrue = isPage ? isHasPageKey() : isHasKey()
+      if (!isKeyTrue) {
         this.warningText = 'Key Error'
         return
-      } 
-      const passwordBtn = this.$refs.passwordBtn
+      }
+
       const width = document.getElementById('box').getClientRects()[0].width
 
       passwordBtn.style.width = `${width - 2}px`
       passwordBtn.style.opacity = 1
       setTimeout(() => {
-        window.location.reload();
+        window.location.reload()
       }, 800)
+    },
+    inputFocus () {
+      this.warningText = 'Input Your Key'
+    },
+    inputBlur () {
+      this.warningText = 'Konck! Knock!'
     },
     isHasKey () {
       const keyPage = this.$themeConfig.keyPage
@@ -80,20 +94,16 @@ export default {
     },
     isHasPageKey () {
       const pageKeys = this.$frontmatter.keys
+      const pageKey = `pageKey${window.location.pathname}`
 
-      return pageKeys && pageKeys.indexOf(sessionStorage.getItem('pageKey')) > -1
-    },
-    inputFocus () {
-      this.warningText = 'Input Your Key'
-    },
-    inputBlur () {
-      this.warningText = 'Konck! Knock!'
+      return pageKeys && pageKeys.indexOf(sessionStorage.getItem(pageKey)) > -1
     }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+@require '../styles/recoConfig.styl'
 .theme-container.no-sidebar
   .password-shadow
     padding-left 0
@@ -105,9 +115,9 @@ export default {
 .password-shadow {
   width 100vw;
   height 100vh;
-  background #fff
   position relative
   padding-left: 20rem;
+  // background-image: radial-gradient(ellipse farthest-corner at center top,#497EC6 0,#000105 100%);
   .title {
     position: absolute;
     left 0
@@ -119,7 +129,7 @@ export default {
     font-size 30px
     box-sizing: border-box;
     padding: 0 10px;
-    text-shadow 0 2px 10px rgba(0,0,0,0.2);
+    text-shadow $textShadow
   }
   .description {
     position: absolute;
@@ -132,13 +142,13 @@ export default {
     font-size 22px
     box-sizing: border-box;
     padding: 0 10px;
-    text-shadow 0 2px 10px rgba(0,0,0,0.2);
+    text-shadow $textShadow
   }
   .inputBox{
     max-width:700px;
     height: 100px;
     background: $accentColor;
-    border-radius: 2px;
+    border-radius: $borderRadius
     position: absolute;
     left 0
     right 0
@@ -191,7 +201,7 @@ export default {
     button{
       width:0px;
       height:98px;
-      border-radius: 2px;
+      border-radius: $borderRadius
       position: absolute;
       border 1px solid $accentColor
       right:1px;
@@ -221,7 +231,7 @@ export default {
       margin-left 1rem
       > i {
         margin-right .5rem
-      } 
+      }
     }
   }
   @media (max-width: $MQMobile) {
@@ -229,7 +239,7 @@ export default {
       max-width:700px;
       height: 60px;
       background: $accentColor;
-      border-radius: 2px;
+      border-radius: $borderRadius
       position: absolute;
       left 0
       right 0
@@ -282,7 +292,7 @@ export default {
       button{
         width:0px;
         height:58px;
-        border-radius: 2px;
+        border-radius: $borderRadius
         position: absolute;
         border 1px solid $accentColor
         right:1px;

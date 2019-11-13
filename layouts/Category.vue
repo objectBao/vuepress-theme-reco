@@ -4,29 +4,29 @@
     <Common :sidebar="false" :isComment="false">
       <!-- 分类集合 -->
       <ul class="category-wrapper">
-        <li 
+        <li
           class="category-item"
-          :class="title.trim() == item.name ? 'active': ''"
-          v-for="(item, index) in this.$categories.list" 
+          :class="title == item.name ? 'active': ''"
+          v-for="(item, index) in this.$categories.list"
           :key="index">
           <router-link :to="item.path">
             <span class="category-name">{{ item.name }}</span>
-            <span class="post-num">{{ item.posts.length }}</span>
+            <span class="post-num">{{ item.pages.length }}</span>
           </router-link>
         </li>
       </ul>
 
       <!-- 博客列表 -->
-      <note-abstract 
+      <note-abstract
         class="list"
         :data="posts"
         :currentPage="currentPage"
         @currentTag="getCurrentTag"></note-abstract>
-      
+
       <!-- 分页 -->
-      <pagation 
+      <pagation
         class="pagation"
-        :data="posts"
+        :total="posts.length"
         :currentPage="currentPage"
         @getCurrentPage="getCurrentPage"></pagation>
     </Common>
@@ -36,10 +36,11 @@
 <script>
 import Common from '@theme/components/Common.vue'
 import NoteAbstract from '@theme/components/NoteAbstract.vue'
-import Pagation from '@theme/components/Pagation.vue'
+import mixin from '@theme/mixins/index.js'
 
 export default {
-  components: { Common, NoteAbstract, Pagation },
+  mixins: [mixin],
+  components: { Common, NoteAbstract },
 
   data () {
     return {
@@ -52,16 +53,15 @@ export default {
   computed: {
     // 时间降序后的博客列表
     posts () {
-      let posts = this.$category.posts
-      posts.sort((a, b) => {
-        return this._getTimeNum(b) - this._getTimeNum(a)
-      })
-      this.getCurrentPage(1)
+      let posts = this.$currentCategories.pages
+      posts = this._filterPostData(posts)
+      this._sortPostData(posts)
+      this._setPage(1)
       return posts
     },
     // 标题只显示分类名称
     title () {
-      return this.$frontmatter.title.split('|')[0]
+      return this.$currentCategories.key
     }
   },
 
@@ -76,6 +76,12 @@ export default {
     },
     // 获取当前页码
     getCurrentPage (page) {
+      this._setPage(page)
+      setTimeout(() => {
+        window.scrollTo(0, 0)
+      }, 100)
+    },
+    _setPage (page) {
       this.currentPage = page
       this.$page.currentPage = page
     },
@@ -90,11 +96,12 @@ export default {
 <style src="../styles/theme.styl" lang="stylus"></style>
 
 <style lang="stylus" scoped>
+@require '../styles/recoConfig.styl'
 @require '../styles/loadMixin.styl'
 .categories-wrapper
   max-width: 740px;
   margin: 0 auto;
-  padding: 4.6rem 2.5rem 0; 
+  padding: 4.6rem 2.5rem 0;
   .category-wrapper {
     list-style none
     padding-left 0
@@ -103,9 +110,9 @@ export default {
       margin: 4px 8px 10px;
       display: inline-block;
       cursor: pointer;
-      border-radius: 2px;
+      border-radius: $borderRadius
       font-size: 13px;
-      box-shadow 0 1px 4px 0 rgba(0,0,0,0.2)
+      box-shadow $boxShadow
       transition: all .5s
       &:hover, &.active {
         background $accentColor
@@ -131,9 +138,9 @@ export default {
           height 1.2rem
           text-align center
           line-height 1.2rem
-          border-radius 50%
+          border-radius $borderRadius
           background #eee
-          font-size .4rem
+          font-size .7rem
         }
       }
     }
@@ -151,7 +158,7 @@ export default {
     .pagation {
       load-end(0.24s)
     }
-  }  
+  }
 
 @media (max-width: $MQMobile)
   .categories-wrapper

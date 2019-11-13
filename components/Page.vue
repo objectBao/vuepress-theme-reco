@@ -2,15 +2,13 @@
   <main class="page" :class="recoShow?'reco-show': 'reco-hide'">
     <slot name="top"/>
 
-    <div class="page-title" v-if="!(isTimeLine)">
+    <div class="page-title">
       <h1>{{$page.title}}</h1>
       <hr>
       <PageInfo :pageInfo="$page"></PageInfo>
     </div>
 
-    <Content/>
-
-    <TimeLine v-if="isTimeLine"></TimeLine>
+    <Content class="theme-reco-content" />
 
     <footer class="page-edit">
       <div
@@ -65,6 +63,8 @@
       </p>
     </div>
 
+    <GA></GA>
+
     <slot name="bottom"/>
   </main>
 </template>
@@ -72,27 +72,23 @@
 <script>
 import PageInfo from '@theme/components/PageInfo'
 import { resolvePage, outboundRE, endingSlashRE } from '../util'
-import TimeLine from '@theme/components/TimeLine'
 
 export default {
-  components: { PageInfo, TimeLine},
+  components: { PageInfo },
 
   props: ['sidebarItems'],
 
   data () {
     return {
-      recoShow: false
+      recoShow: false,
+      isHasKey: true
     }
   },
 
   computed: {
-    isTimeLine () {
-      return this.$frontmatter.isTimeLine
-    },
     lastUpdated () {
       return this.$page.lastUpdated
     },
-
     lastUpdatedText () {
       if (typeof this.$themeLocaleConfig.lastUpdated === 'string') {
         return this.$themeLocaleConfig.lastUpdated
@@ -102,7 +98,6 @@ export default {
       }
       return 'Last Updated'
     },
-
     prev () {
       const prev = this.$frontmatter.prev
       if (prev === false) {
@@ -113,7 +108,6 @@ export default {
         return resolvePrev(this.$page, this.sidebarItems)
       }
     },
-
     next () {
       const next = this.$frontmatter.next
       if (next === false) {
@@ -124,10 +118,9 @@ export default {
         return resolveNext(this.$page, this.sidebarItems)
       }
     },
-
     editLink () {
       if (this.$frontmatter.editLink === false) {
-        return
+        return false
       }
       const {
         repo,
@@ -140,27 +133,17 @@ export default {
       if (docsRepo && editLinks && this.$page.relativePath) {
         return this.createEditLink(repo, docsRepo, docsDir, docsBranch, this.$page.relativePath)
       }
+      return ''
     },
-
     editLinkText () {
       return (
-        this.$themeLocaleConfig.editLinkText
-        || this.$themeConfig.editLinkText
-        || `Edit this page`
+        this.$themeLocaleConfig.editLinkText || this.$themeConfig.editLinkText || `Edit this page`
       )
     }
   },
 
   mounted () {
     this.recoShow = true
-
-    const keys = this.$frontmatter.keys
-    if (!keys) {
-      this.isHasKey =  true
-      return
-    }
-
-    this.isHasKey = keys && keys.indexOf(sessionStorage.getItem('key')) > -1
   },
 
   methods: {
@@ -171,12 +154,12 @@ export default {
           ? docsRepo
           : repo
         return (
-          base.replace(endingSlashRE, '')
-           + `/src`
-           + `/${docsBranch}/`
-           + (docsDir ? docsDir.replace(endingSlashRE, '') + '/' : '')
-           + path
-           + `?mode=edit&spa=0&at=${docsBranch}&fileviewer=file-view-default`
+          base.replace(endingSlashRE, '') +
+           `/src` +
+           `/${docsBranch}/` +
+           (docsDir ? docsDir.replace(endingSlashRE, '') + '/' : '') +
+           path +
+           `?mode=edit&spa=0&at=${docsBranch}&fileviewer=file-view-default`
         )
       }
 
@@ -184,11 +167,11 @@ export default {
         ? docsRepo
         : `https://github.com/${docsRepo}`
       return (
-        base.replace(endingSlashRE, '')
-        + `/edit`
-        + `/${docsBranch}/`
-        + (docsDir ? docsDir.replace(endingSlashRE, '') + '/' : '')
-        + path
+        base.replace(endingSlashRE, '') +
+        `/edit` +
+        `/${docsBranch}/` +
+        (docsDir ? docsDir.replace(endingSlashRE, '') + '/' : '') +
+        path
       )
     }
   }
@@ -230,17 +213,17 @@ function flatten (items, res) {
 @require '../styles/loadMixin.styl'
 
 .page
-  padding-top 6rem
+  padding-top 5rem
   padding-bottom 2rem
   display block
   #time-line {
     margin-top 0
     padding-top 0
-  } 
+  }
   .page-title
     max-width: 740px;
     margin: 0 auto;
-    padding: 0rem 2.5rem;
+    padding: 1rem 2.5rem;
   .page-edit
     @extend $wrapper
     padding-top 1rem
@@ -265,7 +248,7 @@ function flatten (items, res) {
   }
   &.reco-show.page {
     load-end(0.08s)
-  }          
+  }
 
 .page-nav
   @extend $wrapper
@@ -280,10 +263,9 @@ function flatten (items, res) {
   .next
     float right
 
-
 @media (max-width: $MQMobile)
   .page-title
-    padding: 0 1rem;  
+    padding: 0 1rem;
   .page-edit
     .edit-link
       margin-bottom .5rem

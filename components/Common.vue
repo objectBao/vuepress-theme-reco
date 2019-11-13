@@ -5,8 +5,8 @@
     @touchstart="onTouchStart"
     @touchend="onTouchEnd">
     <transition name="fade">
-      <Loading v-if="firstLoad"></Loading>
-      <Password v-else-if="!isHasKey"></Password>
+      <LoadingPage v-if="firstLoad" />
+      <Password v-else-if="!isHasKey" />
       <div v-else>
         <Navbar
         v-if="shouldShowNavbar"
@@ -30,12 +30,11 @@
         <Password v-if="!isHasPageKey" :isPage="true"></Password>
         <div v-else>
           <slot></slot>
-          <Valine :isComment="isComment"></Valine>
+          <Comments :isShowComments="shouldShowComments"/>
         </div>
-
-        <BackToTop></BackToTop>
       </div>
     </transition>
+    <GA></GA>
   </div>
 </template>
 
@@ -44,15 +43,20 @@ import Navbar from '@theme/components/Navbar.vue'
 import Sidebar from '@theme/components/Sidebar.vue'
 import { resolveSidebarItems } from '../util'
 import Password from '@theme/components/Password'
-import Loading from '@theme/components/Loading'
-import Valine from '@theme/components/Valine/'
-import BackToTop from "@theme/components/BackToTop"
-import { setTimeout } from 'timers';
 
 export default {
-  components: { Sidebar, Navbar, Password, Valine, BackToTop, Loading },
+  components: { Sidebar, Navbar, Password },
 
-  props: ['sidebar', 'isComment'],
+  props: {
+    sidebar: {
+      type: Boolean,
+      default: true
+    },
+    isComment: {
+      type: Boolean,
+      default: true
+    }
+  },
 
   data () {
     return {
@@ -64,30 +68,41 @@ export default {
   },
 
   computed: {
+    // 是否显示评论
+    shouldShowComments () {
+      const { isShowComments, home } = this.$frontmatter
+      return !(
+        this.isComment == false ||
+        isShowComments == false ||
+        home == true
+      )
+    },
+
     shouldShowNavbar () {
       const { themeConfig } = this.$site
       const { frontmatter } = this.$page
+
       if (
-        frontmatter.navbar === false
-        || themeConfig.navbar === false) {
-        return false
-      }
+        frontmatter.navbar === false ||
+        themeConfig.navbar === false
+      ) return false
+
       return (
-        this.$title
-        || themeConfig.logo
-        || themeConfig.repo
-        || themeConfig.nav
-        || this.$themeLocaleConfig.nav
+        this.$title ||
+        themeConfig.logo ||
+        themeConfig.repo ||
+        themeConfig.nav ||
+        this.$themeLocaleConfig.nav
       )
     },
 
     shouldShowSidebar () {
       const { frontmatter } = this.$page
       return (
-        this.sidebar !== false
-        && !frontmatter.home
-        && frontmatter.sidebar !== false
-        && this.sidebarItems.length
+        this.sidebar !== false &&
+        !frontmatter.home &&
+        frontmatter.sidebar !== false &&
+        this.sidebarItems.length
       )
     },
 
@@ -127,7 +142,7 @@ export default {
     hasKey () {
       const keyPage = this.$themeConfig.keyPage
       if (!keyPage) {
-        this.isHasKey =  true
+        this.isHasKey = true
         return
       }
 
@@ -137,11 +152,11 @@ export default {
     hasPageKey () {
       const pageKeys = this.$frontmatter.keys
       if (!pageKeys) {
-        this.isHasPageKey =  true
+        this.isHasPageKey = true
         return
       }
 
-      this.isHasPageKey = pageKeys && pageKeys.indexOf(sessionStorage.getItem('pageKey')) > -1
+      this.isHasPageKey = pageKeys && pageKeys.indexOf(sessionStorage.getItem(`pageKey${window.location.pathname}`)) > -1
     },
     toggleSidebar (to) {
       this.isSidebarOpen = typeof to === 'boolean' ? to : !this.isSidebarOpen
@@ -170,7 +185,7 @@ export default {
     handleLoading () {
       // const time = this.$frontmatter.home && sessionStorage.getItem('firstLoad') == undefined ? 1000 : 0
       // setTimeout(() => {
-        this.firstLoad = false
+      this.firstLoad = false
       //   if (sessionStorage.getItem('firstLoad') == undefined) sessionStorage.setItem('firstLoad', false)
       // }, time)
     }
@@ -178,16 +193,31 @@ export default {
 
   watch: {
     $frontmatter (newVal, oldVal) {
-      if (newVal.home) {
-        this.hasKey()
-        this.hasPageKey()
-      }
+      this.hasKey()
+      this.hasPageKey()
     }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
+.theme-container.no-sidebar
+  .comments-wrapper
+    padding-left 2rem
+
+.comments-wrapper
+  padding 2rem 2rem 2rem 22rem
+  max-width: 740px;
+  margin: 0 auto;
+@media (max-width: $MQNarrow)
+  .theme-container.no-sidebar
+    .comments-wrapper
+      padding-left 2rem
+  .comments-wrapper
+    padding-left: 18.4rem;
+@media (max-width: $MQMobile)
+  .comments-wrapper
+    padding-left: 2rem
 .fade-enter-active, .fade-leave-active {
   transition: opacity .5s;
 }

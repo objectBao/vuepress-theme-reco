@@ -23,7 +23,7 @@
       } : {}">
 
       <Theme v-if="hasThemes" />
-      <ScreenFull />
+      <Screenfull class="screenfull" />
       <AlgoliaSearchBox
         v-if="isAlgoliaSearch"
         :options="algolia"/>
@@ -34,16 +34,17 @@
 </template>
 
 <script>
-  import AlgoliaSearchBox from '@AlgoliaSearchBox'
-  import SearchBox from '@SearchBox'
-  import SidebarButton from '@theme/components/SidebarButton.vue'
-  import NavLinks from '@theme/components/NavLinks.vue'
-  import Theme from '@theme/components/Theme'
-  import ScreenFull from '@theme/components/ScreenFull'
-  import '../util/ribbon'
+
+import AlgoliaSearchBox from '@AlgoliaSearchBox'
+import SearchBox from '@SearchBox'
+import SidebarButton from '@theme/components/SidebarButton.vue'
+import NavLinks from '@theme/components/NavLinks.vue'
+import Theme from '@theme/components/Theme'
+import '../util/ribbon'
+
 
 export default {
-  components: { SidebarButton, NavLinks, SearchBox, AlgoliaSearchBox, Theme, ScreenFull },
+  components: { SidebarButton, NavLinks, SearchBox, AlgoliaSearchBox, Theme },
 
   data () {
     return {
@@ -51,30 +52,32 @@ export default {
       hasThemes: false
     }
   },
+  mounted () {
+    try {
+      if (this.$root.$themeConfig.ribbons === 'animate') {
+        // eslint-disable-next-line no-undef
+        new Ribbons()
+      }
+    } catch (e) {
+      // error
+    }
 
-    mounted () {
-      try {
-        if( this.$root.$themeConfig.ribbons==='animate'){
-          new Ribbons();
-        }
-      }catch (e) { }
+    const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
+    const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
+    const { themePicker } = this.$themeConfig
+    const handleLinksWrapWidth = () => {
+      if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
+        this.linksWrapMaxWidth = null
+      } else {
+        this.linksWrapMaxWidth = this.$el.offsetWidth - NAVBAR_VERTICAL_PADDING -
+          (this.$refs.siteName && this.$refs.siteName.offsetWidth || 0)
 
-      const MOBILE_DESKTOP_BREAKPOINT = 719 // refer to config.styl
-      const NAVBAR_VERTICAL_PADDING = parseInt(css(this.$el, 'paddingLeft')) + parseInt(css(this.$el, 'paddingRight'))
-      const { themePicker } = this.$themeConfig
-      const handleLinksWrapWidth = () => {
-        if (document.documentElement.clientWidth < MOBILE_DESKTOP_BREAKPOINT) {
-          this.linksWrapMaxWidth = null
-        } else {
-          this.linksWrapMaxWidth = this.$el.offsetWidth - NAVBAR_VERTICAL_PADDING
-                  - (this.$refs.siteName && this.$refs.siteName.offsetWidth || 0)
-        }
       }
       handleLinksWrapWidth()
       window.addEventListener('resize', handleLinksWrapWidth, false)
       this.hasThemes = themePicker === undefined ? true : themePicker
-    },
-
+    }
+  },
   computed: {
     algolia () {
       return this.$themeLocaleConfig.algolia || this.$themeConfig.algolia || {}
@@ -86,30 +89,32 @@ export default {
   }
 }
 
-  function css (el, property) {
-    // NOTE: Known bug, will return 'auto' if style value is 'auto'
-    const win = el.ownerDocument.defaultView
-    // null means not to return pseudo styles
-    return win.getComputedStyle(el, null)[property]
-  }
+function css (el, property) {
+  // NOTE: Known bug, will return 'auto' if style value is 'auto'
+  const win = el.ownerDocument.defaultView
+  // null means not to return pseudo styles
+  return win.getComputedStyle(el, null)[property]
+}
 
-  var _hmt = _hmt || [];
-  (function() {
-    var hm = document.createElement("script");
-    hm.src = "https://hm.baidu.com/hm.js?657fd6d796aebad034759e869ec45e37";
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(hm, s);
-  })();
+var _hmt = _hmt || [];
+(function () {
+  var hm = document.createElement('script')
+  hm.src = 'https://hm.baidu.com/hm.js?657fd6d796aebad034759e869ec45e37'
+  var s = document.getElementsByTagName('script')[0]
+  s.parentNode.insertBefore(hm, s)
+})()
 </script>
 
 <style lang="stylus">
+@require '../styles/recoConfig.styl'
+
 $navbar-vertical-padding = 0.7rem
 $navbar-horizontal-padding = 1.5rem
 
 .navbar
   padding $navbar-vertical-padding $navbar-horizontal-padding
   line-height $navbarHeight - 1.4rem
-  box-shadow 0 1px 6px 0 rgba(32,33,36,.28)
+  box-shadow $boxShadow
   a, span, img
     display inline-block
   .logo
@@ -135,6 +140,8 @@ $navbar-horizontal-padding = 1.5rem
     .search-box
       flex: 0 0 auto
       vertical-align top
+    .screenfull
+      margin-right 1rem
 
 @media (max-width: $MQMobile)
   .navbar
