@@ -44,6 +44,8 @@ import Sidebar from '@theme/components/Sidebar.vue'
 import { resolveSidebarItems } from '../util'
 import Password from '@theme/components/Password'
 
+import Ribbons from '../util/ribbon.js'
+
 export default {
   components: { Sidebar, Navbar, Password },
 
@@ -129,6 +131,14 @@ export default {
   },
 
   mounted () {
+    try {
+      if (this.$root.$themeConfig.ribbons === 'animate') {
+        // eslint-disable-next-line no-undef
+        new Ribbons()
+      }
+    } catch (e) {
+      // error
+    }
     this.$router.afterEach(() => {
       this.isSidebarOpen = false
     })

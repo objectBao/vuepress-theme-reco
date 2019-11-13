@@ -1,6 +1,6 @@
 {
   "name": "vuepress-theme-fake",
-  "version": "1.0.9-alpha.7",
+  "version": "1.0.9-alpha.9",
   "description": "A simple and beautiful vuepress Blog & Doc theme.",
   "main": "index.js",
   "scripts": {
